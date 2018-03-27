@@ -63,5 +63,5 @@ pip install -U -r gsc/requirements.txt
 ```bash
 # source myenv/bin/activate
 # cd gsc
-python fetch_data.py cache/creds-mpopov.json en.wikipedia.org none output/enwiki 2018-03-24 90
+python fetch_data.py --rich cache/creds-mpopov.json en.wikipedia.org none output/enwiki 2018-03-24 90
 ```

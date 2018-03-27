@@ -109,3 +109,5 @@ cache/*
 !cache/credentials-sample.json
 *_secrets.json
 !client_secrets.json
+
+output/
