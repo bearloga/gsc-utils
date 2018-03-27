@@ -39,7 +39,7 @@ You should have a file that looks like [this](cache/credentials-sample.json).
 ## Usage
 
 ```bash
-python3 fetch_data.py path/to/credentials SITE SPLIT path/to/output DATE DAYS
+python3 fetch_stats.py path/to/credentials SITE SPLIT path/to/output DATE DAYS
 ```
 
 **Note**: that since Google doesn't store more than 90 days of Search Console reports, be careful choosing `DATE` and `DAYS`.
@@ -47,10 +47,10 @@ python3 fetch_data.py path/to/credentials SITE SPLIT path/to/output DATE DAYS
 HTTPS is assumed but an HTTP variant of a property is supported:
 
 ```bash
-python3 fetch_data.py --http path/to/credentials SITE SPLIT path/to/output
+python3 fetch_stats.py --http path/to/credentials SITE SPLIT path/to/output
 ```
 
-See `./fetch_data.py --help` for more information.
+See `./fetch_stats.py --help` for more information.
 
 ### Example
 
@@ -64,7 +64,7 @@ pip install -U -r gsc/requirements.txt
 …steps to authorize and save credentials…
 
 ```bash
-python fetch_data.py --rich cache/creds-mpopov.json en.wikipedia.org none output/enwiki 2018-03-24 90
+python fetch_stats.py --rich cache/creds-mpopov.json en.wikipedia.org none output/enwiki 2018-03-24 90
 ```
 
 ### Rich Card Results
