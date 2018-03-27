@@ -1,0 +1,5 @@
+argparse
+google-api-python-client >= 1.6.4
+httplib2
+numpy
+pandas >= 0.21.0
