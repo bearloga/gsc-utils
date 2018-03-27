@@ -57,11 +57,18 @@ See `./fetch_data.py --help` for more information.
 ```bash
 virtualenv -p /usr/bin/python3 myenv
 source myenv/bin/activate
+git clone https://github.com/bearloga/wmf-gsc.git gsc
 pip install -U -r gsc/requirements.txt
 ```
 
+…steps to authorize and save credentials–
+
 ```bash
-# source myenv/bin/activate
-# cd gsc
 python fetch_data.py --rich cache/creds-mpopov.json en.wikipedia.org none output/enwiki 2018-03-24 90
 ```
+
+### Rich Card Results
+
+Some results appear as rich cards in Google's search results, and the way the statistics are calculated is different. Specifically, there are two aggregation types: by site and by page. When the `--rich` flag is present, the statistics returned will be aggregated _by page_. Otherwise all results will be considered and the aggregation will be _by site_.
+
+Refer to [Aggregating data by site vs by page](https://support.google.com/webmasters/answer/6155685?authuser=0#urlorsite) for details.

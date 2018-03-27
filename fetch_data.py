@@ -19,7 +19,7 @@ def critical(message):
 
 # Establish command-line arguments:
 parser = argparse.ArgumentParser(description='Fetch Google Search Console statistics for a property.')
-parser.add_argument("credentials", help="Use custom credentials file")
+parser.add_argument("credentials", help="path/to/credentials (pre-authorized, see README)")
 parser.add_argument("website",
                     help="Web property to fetch stats about; e.g. en.wikipedia.org, commons.wikimedia.org")
 parser.add_argument("split", choices=['none', 'country', 'device', 'country-device'], default='none',
