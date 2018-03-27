@@ -61,7 +61,7 @@ git clone https://github.com/bearloga/wmf-gsc.git gsc
 pip install -U -r gsc/requirements.txt
 ```
 
-…steps to authorize and save credentials–
+…steps to authorize and save credentials…
 
 ```bash
 python fetch_data.py --rich cache/creds-mpopov.json en.wikipedia.org none output/enwiki 2018-03-24 90
@@ -72,3 +72,11 @@ python fetch_data.py --rich cache/creds-mpopov.json en.wikipedia.org none output
 Some results appear as rich cards in Google's search results, and the way the statistics are calculated is different. Specifically, there are two aggregation types: by site and by page. When the `--rich` flag is present, the statistics returned will be aggregated _by page_. Otherwise all results will be considered and the aggregation will be _by site_.
 
 Refer to [Aggregating data by site vs by page](https://support.google.com/webmasters/answer/6155685?authuser=0#urlorsite) for details.
+
+## Site List
+
+To create a text file listing the properties available under the account:
+
+```
+python3 fetch_sitelist.py path/to/credentials sites.txt
+```
