@@ -1,6 +1,6 @@
 # License
 
-## wmf-gsc
+## GSC Data Fetcher 
 
 Copyright © 2018 Wikimedia Foundation. All Rights Reserved.
 

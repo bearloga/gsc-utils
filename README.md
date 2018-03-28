@@ -1,6 +1,6 @@
-# Google Search Consola Data Fetcher
+# GSC Data Fetcher
 
-Wikipedia's and other Wikimedia Foundation sites' presence in Google's search results via [Search Console API](https://developers.google.com/webmaster-tools/search-console-api-original/).
+Utility for accessing and downloading the statistics on a site's presence in Google's search results via [Search Console API](https://developers.google.com/webmaster-tools/search-console-api-original/).
 
 ## Setup
 
