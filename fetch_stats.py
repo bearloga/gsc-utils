@@ -23,7 +23,7 @@ parser.add_argument("credentials", help="path/to/credentials (pre-authorized, se
 parser.add_argument("website",
                     help="Web property to fetch stats about; e.g. en.wikipedia.org, commons.wikimedia.org")
 parser.add_argument("split", choices=['none', 'country', 'device', 'country-device'], default='none',
-                    help="Dimension to split by, if any")
+                    help="Dimension to split by (if any); country codes are returned as ISO 3166-1 alpha-3")
 parser.add_argument("outdir", help="path/to/directory to store output in")
 parser.add_argument("date", nargs="?", default=dt.date.today().strftime("%Y-%m-%d"),
                     help="Date (YYYY-MM-DD) to fetch data for (default: %(default)s (today))")

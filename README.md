@@ -50,7 +50,7 @@ HTTPS is assumed but an HTTP variant of a property is supported:
 python3 fetch_stats.py --http path/to/credentials SITE SPLIT path/to/output
 ```
 
-See `./fetch_stats.py --help` for more information.
+See `./fetch_stats.py --help` for more information. **Note**: according to [official documentation](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query#dimensionFilterGroups.filters.dimension), country codes are returned as [ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3).
 
 ### Example
 
