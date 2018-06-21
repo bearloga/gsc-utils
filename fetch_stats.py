@@ -63,12 +63,12 @@ webmasters_service = build('webmasters', 'v3', http=http)
 def execute_request(site_url, request):
    return webmasters_service.searchanalytics().query(siteUrl = site_url, body = request).execute()
 
-# Construct API request:
+# Construct the API request:
 request = {
     'startDate': start_date.strftime("%Y-%m-%d"),
     'endDate': args.date
 }
-
+# Stats for 'rich' (not 'all') results must be filtered:
 if args.rich:
     request['dimensionFilterGroups'] = [{
         'filters': [{
@@ -76,7 +76,7 @@ if args.rich:
             'expression': 'RICHCARD'
         }]
     }]
-
+# Augment the request as needed:
 if args.split == 'country':
     request['dimensions'] = ['date', 'country']
 elif args.split == 'device':
@@ -85,7 +85,7 @@ elif args.split == 'country-device':
     request['dimensions'] = ['date', 'country', 'device']
 else:
     request['dimensions'] = ['date']
-
+# Message for user:
 if args.verbose:
     print("Requesting the following info about '" + website_url + "':")
     print(request)
@@ -95,12 +95,12 @@ response = execute_request(website_url, request)
 if not response.__contains__('rows'):
     critical('No data returned by the API')
 
-# Get a DataFrame into a writeable format:
+# Get a Pandas DataFrame into a writeable format:
 df = pd.DataFrame.from_dict(response['rows'])
 df['date'] = df['keys'].apply(lambda x: x[0])
 df['clicks'] = df['clicks'].astype(np.int64)
 df['impressions'] = df['impressions'].astype(np.int64)
-
+# Tidy-up:
 if args.split == 'country':
     df['country'] = df['keys'].apply(lambda x: x[1].upper())
     df = df[['date', 'country', 'clicks', 'impressions', 'ctr', 'position']]
@@ -115,13 +115,15 @@ elif args.split == 'country-device':
     df = df[['date', 'country', 'device', 'clicks', 'impressions', 'ctr', 'position']]
     df = df.sort_values(by=['date', 'country', 'device'], ascending=[True, True, True])
 else:
-    df = df[['date', 'clicks', 'impressions', 'ctr', 'position']].sort_values(by = ['date'], ascending=True)
+    df = df[['date', 'clicks', 'impressions', 'ctr', 'position']]
+    df = df.sort_values(by = ['date'], ascending=True)
 
 # Create output directory if it does not exist yet:
 if not os.path.exists(args.outdir):
     os.makedirs(args.outdir)
 
+# Save:
 output_filename = args.outdir + '/' + ("overall" if args.split == 'none' else args.split)
 output_filename += '-' + ("rich" if args.rich else "all") + '.csv'
-
-df.to_csv(output_filename, index=False, float_format='%.4f', mode='a', header=not os.path.exists(output_filename))
+df.to_csv(output_filename, index=False, float_format='%.4f', mode='a',
+          header=not os.path.exists(output_filename))
