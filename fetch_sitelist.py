@@ -7,7 +7,7 @@ from apiclient.discovery import build
 from oauth2client.file import Storage
 
 # Establish command-line arguments:
-parser = argparse.ArgumentParser(description='Fetch Google Search Console statistics for a property.')
+parser = argparse.ArgumentParser(description='Fetch list of properties registered in Google Search Console statistics.')
 parser.add_argument("credentials", help="path/to/credentials (pre-authorized, see README)")
 parser.add_argument("outfile", default='sites.txt',
                     help="path/to/directory to store output in (default: %(default)s)")
