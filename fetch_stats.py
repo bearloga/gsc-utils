@@ -66,7 +66,8 @@ def execute_request(site_url, request):
 # Construct the API request:
 request = {
     'startDate': start_date.strftime("%Y-%m-%d"),
-    'endDate': args.date
+    'endDate': args.date,
+    'rowLimit': 25000
 }
 # Stats for 'rich' (not 'all') results must be filtered:
 if args.rich:
