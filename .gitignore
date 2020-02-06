@@ -111,3 +111,4 @@ cache/*
 !client_secrets.json
 
 output/
+.Rprofile

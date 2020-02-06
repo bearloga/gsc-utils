@@ -1,82 +1,98 @@
-# GSC Data Fetcher
+# gsc-utils
 
-Utility for accessing and downloading the statistics on a site's presence in Google's search results via [Search Console API](https://developers.google.com/webmaster-tools/search-console-api-original/).
+Utilities for accessing and downloading the statistics on a site's presence in Google's search results via [Search Console API](https://developers.google.com/webmaster-tools/search-console-api-original/).
 
 ## Setup
 
-Relies on the [Google's Python client library](https://developers.google.com/api-client-library/python/) via [google-api-python-client](https://github.com/google/google-api-python-client):
-
 ```bash
-pip install -r requirements.txt
+pip3 install -U git+https://github.com/bearloga/gsc-utils.git
 ```
 
-### Credentials
+### Credential authorization
 
-Adapted from [Quickstart: Run a Search Console App in Python ](https://developers.google.com/webmaster-tools/search-console-api-original/v3/quickstart/quickstart-python) and [OAuth 2.0 Storage](https://developers.google.com/api-client-library/python/guide/aaa_oauth#storage):
+Create a OAuth 2.0 Client ID on the [Credentials page](https://console.developers.google.com/apis/credentials) of the API console. Then download the secrets JSON. You will use this to create and save a set of authorized credentials. When run, the code will ask you to navigate to a specific URL to authorize with your Google account and prompt you for a verification code which you will be given after approving the authorization request.
 
 ```python
-import httplib2
-from oauth2client.client import flow_from_clientsecrets
-from oauth2client.file import Storage
+from gsc_utils import utils
 
-flow = flow_from_clientsecrets('client_secrets.json', scope='https://www.googleapis.com/auth/webmasters.readonly', redirect_uri='urn:ietf:wg:oauth:2.0:oob')
-
-# Create an httplib2.Http object and authorize it with our credentials
-authorize_url = flow.step1_get_authorize_url()
-print('Go to the following link in your browser: ' + authorize_url)
-code = input('Enter verification code: ').strip()
-credentials = flow.step2_exchange(code)
-http = httplib2.Http(cache="cache")
-http = credentials.authorize(http)
-
-# Save
-storage = Storage('cache/credentials.json')
-storage.put(credentials)
+creds = utils.authorize('path/to/secrets.json')
+utils.save_credentials(creds, 'path/to/credentials.json')
 ```
 
-You should have a file that looks like [this](cache/credentials-sample.json).
+The created `credentials.json` should look similar to [this sample](cache/credentials-sample.json). You can re-use it in future sessions without having to re-authorize:
+
+```python
+from gsc_utils import utils
+
+creds = utils.load_credentials('path/to/credentials.json')
+```
+
+**Note**: Some of the code has been adapted from [Quickstart: Run a Search Console App in Python ](https://developers.google.com/webmaster-tools/search-console-api-original/v3/quickstart/quickstart-python) and [OAuth 2.0 Storage](https://developers.google.com/api-client-library/python/guide/aaa_oauth#storage).
 
 ## Usage
 
-```bash
-python3 fetch_stats.py path/to/credentials SITE SPLIT path/to/output DATE DAYS
+To fetch and save a list of properties registered in GSC for the user whose credentials are being used:
+
+```python
+from gsc_utils import fetch
+
+site_list = fetch.sitelist(creds)
+site_list.to_csv('path/to/sites.csv', index=False)
 ```
 
-**Note**: that since Google doesn't store more than 90 days of Search Console reports, be careful choosing `DATE` and `DAYS`.
-
-HTTPS is assumed but an HTTP variant of a property is supported:
+It is important to get stats only for sites in that list. Here is an example of getting stats (impressions, clicks, average position) for English Wikipedia desktop and mobile web sites:
 
 ```bash
-python3 fetch_stats.py --http path/to/credentials SITE SPLIT path/to/output
+from gsc_utils import fetch
+
+enwiki = fetch.stats(creds, 'en.wikipedia.org', '2020-01-01', '2020-01-31')
+enwiki['variant'] = 'desktop'
+enwiki_mobile = fetch.stats(creds, 'en.m.wikipedia.org', '2020-01-01', '2020-01-31')
+enwiki_mobile['variant'] = 'mobile web'
+
+enwiki = enwiki.append(enwiki_mobile)
 ```
 
-See `./fetch_stats.py --help` for more information. **Note**: according to [official documentation](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query#dimensionFilterGroups.filters.dimension), country codes are returned as [ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3).
-
-### Example
-
-```bash
-virtualenv -p /usr/bin/python3 myenv
-source myenv/bin/activate
-git clone https://github.com/bearloga/wmf-gsc.git gsc
-pip install -U -r gsc/requirements.txt
-```
-
-…steps to authorize and save credentials…
-
-```bash
-python fetch_stats.py --rich cache/creds-mpopov.json en.wikipedia.org none output/enwiki 2018-03-24 90
-```
+**Note**: When `split_by='country'` or `split_by='country-device'`, country codes are returned as [ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) (according to [official documentation](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query#dimensionFilterGroups.filters.dimension)).
 
 ### Rich Card Results
 
-Some results appear as rich cards in Google's search results, and the way the statistics are calculated is different. Specifically, there are two aggregation types: by site and by page. When the `--rich` flag is present, the statistics returned will be aggregated _by page_. Otherwise all results will be considered and the aggregation will be _by site_.
+Some results appear as rich cards in Google's search results, and the way the statistics are calculated is different. Specifically, there are two aggregation types: by site and by page. When `rich_results=True`, the statistics returned will be aggregated _by page_. Otherwise all results will be considered and the aggregation will be _by site_.
 
 Refer to [Aggregating data by site vs by page](https://support.google.com/webmasters/answer/6155685?authuser=0#urlorsite) for details.
 
-## Site List
+### Example usage in R
 
-To create a text file listing the properties available under the account:
+```R
+# install.packages(c("purrr", "urltools", "readr", "reticulate"))
 
+library(reticulate)
+
+gsc_utils <- import("gsc_utils.utils")
+fetch <- import("gsc_utils.fetch")
+
+creds <- gsc_utils$load_credentials('path/to/credentials.json')
+
+site_list <- fetch$sitelist(creds)
+
+results <- purrr::map_dfr(
+  site_list$siteUrl,
+  function(site_url, start, end) {
+    website <- urltools::domain(site_url)
+    use_https <- urltools::scheme(site_url) == "https"
+    result <- fetch$stats(creds, website, start, end, use_https = use_https)
+    return(result)
+  },
+  start = "2020-01-01", end = "2020-01-31"
+)
+
+readr::write_csv(results, "stats_2020-01.csv")
 ```
-python3 fetch_sitelist.py path/to/credentials sites.txt
+
+**Note**: If `gsc-utils` is installed in a different virtual environment than the default one, include the following in .Rprofile in working directory:
+
+```R
+Sys.setenv(RETICULATE_PYTHON = "path/to/python")
 ```
+
+Refer to [Python Version Configuration](https://rstudio.github.io/reticulate/articles/versions.html) for more instructions and details.
