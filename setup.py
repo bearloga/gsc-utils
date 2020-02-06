@@ -1,4 +1,5 @@
 from setuptools import setup
+from setuptools import find_packages
 
 # Load the contents of the metadata module without using import, since importing requires all dependencies
 # to be available and at this point pip hasn't checked them yet.
@@ -15,6 +16,7 @@ setup(
         'numpy>=1.18.1',
         'pandas>=0.25.3'
     ],
+    packages=find_packages(),
     url=metadata["source"],
     license='Apache License 2.0',
     author='Mikhail Popov',
