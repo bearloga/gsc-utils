@@ -31,25 +31,7 @@ creds = utils.load_credentials('path/to/credentials.json')
 
 ## Usage
 
-To fetch and save a list of properties registered in GSC for the user whose credentials are being used:
-
-```python
-from gsc_utils import fetch
-
-site_list = fetch.sitelist(creds)
-site_list.to_csv('path/to/sites.csv', index=False)
-```
-
-It is important to get stats only for sites in that list. Here is an example of getting stats (impressions, clicks, average position) for English Wikipedia desktop and mobile web sites:
-
-```bash
-from gsc_utils import fetch
-
-enwiki = fetch.stats(creds, ['en.wikipedia.org', 'en.m.wikipedia.org'], '2020-01-01', '2020-01-31')
-enwiki.to_csv('path/to/enwiki.csv', enwiki, index=False)
-```
-
-**Splitting by country**: When `split_by='country'` or `split_by='country-device'`, country codes are returned as [ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) (according to [official documentation](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query#dimensionFilterGroups.filters.dimension)).
+Refer to [example notebook](docs/example.ipynb)
 
 ### Rich Card Results
 
