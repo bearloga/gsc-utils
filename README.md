@@ -10,7 +10,7 @@ pip3 install -U git+https://github.com/bearloga/gsc-utils.git
 
 ### Credential authorization
 
-Create a OAuth 2.0 Client ID on the [Credentials page](https://console.developers.google.com/apis/credentials) of the API console. Then download the secrets JSON. You will use this to create and save a set of authorized credentials. When run, the code will ask you to navigate to a specific URL to authorize with your Google account and prompt you for a verification code which you will be given after approving the authorization request.
+Create a OAuth 2.0 Client ID on the [Credentials page](https://console.developers.google.com/apis/credentials) of the API console. Then download the secrets JSON (which should look similar to [this example](sample-secrets.json)). You will use this to create and save a set of authorized credentials. When run, the code will ask you to navigate to a specific URL to authorize with your Google account and prompt you for a verification code which you will be given after approving the authorization request.
 
 ```python
 from gsc_utils import utils
@@ -19,7 +19,7 @@ creds = utils.authorize('path/to/secrets.json')
 utils.save_credentials(creds, 'path/to/credentials.json')
 ```
 
-The created `credentials.json` should look similar to [this sample](cache/credentials-sample.json). You can re-use it in future sessions without having to re-authorize:
+The created `credentials.json` should look similar to [this example](sample-credentials.json). You can re-use it in future sessions without having to re-authorize:
 
 ```python
 from gsc_utils import utils
