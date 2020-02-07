@@ -45,15 +45,11 @@ It is important to get stats only for sites in that list. Here is an example of 
 ```bash
 from gsc_utils import fetch
 
-enwiki = fetch.stats(creds, 'en.wikipedia.org', '2020-01-01', '2020-01-31')
-enwiki['variant'] = 'desktop'
-enwiki_mobile = fetch.stats(creds, 'en.m.wikipedia.org', '2020-01-01', '2020-01-31')
-enwiki_mobile['variant'] = 'mobile web'
-
-enwiki = enwiki.append(enwiki_mobile)
+enwiki = fetch.stats(creds, ['en.wikipedia.org', 'en.m.wikipedia.org'], '2020-01-01', '2020-01-31')
+enwiki.to_csv('path/to/enwiki.csv', enwiki, index=False)
 ```
 
-**Note**: When `split_by='country'` or `split_by='country-device'`, country codes are returned as [ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) (according to [official documentation](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query#dimensionFilterGroups.filters.dimension)).
+**Splitting by country**: When `split_by='country'` or `split_by='country-device'`, country codes are returned as [ISO 3166-1 alpha-3](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3) (according to [official documentation](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query#dimensionFilterGroups.filters.dimension)).
 
 ### Rich Card Results
 
@@ -89,6 +85,12 @@ results <- purrr::map_dfr(
 readr::write_csv(results, "stats_2020-01.csv")
 ```
 
+Since `gsc_utils.fetch.stats()` can operate on a vector of websites, this is the alternative usage if all of the sites use the same protocol (all HTTPS):
+
+```R
+results <- fetch$stats(creds, urltools::domain(site_list$siteUrl), start = "2020-01-01", end = "2020-01-31")
+```
+
 **Note**: If `gsc-utils` is installed in a different virtual environment than the default one, include the following in .Rprofile in working directory:
 
 ```R
@@ -96,3 +98,7 @@ Sys.setenv(RETICULATE_PYTHON = "path/to/python")
 ```
 
 Refer to [Python Version Configuration](https://rstudio.github.io/reticulate/articles/versions.html) for more instructions and details.
+
+## Information
+
+**Maintainer**: Mikhail Popov (mpopov at wikimedia dot org)

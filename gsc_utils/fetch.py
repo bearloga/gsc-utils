@@ -27,7 +27,7 @@ def stats(credentials, website, start_date, end_date, split_by=None, use_https=T
     Fetch Google Search Console statistics for a property
 
     :param credentials: Pre-authorized credentials, loaded using `utils.load_credentials()`
-    :param website: Web property to fetch stats about; e.g. 'en.wikipedia.org', 'commons.wikimedia.org'
+    :param website: One or more web properties to fetch stats for; e.g. `['en.wikipedia.org', 'commons.wikimedia.org']`
     :param start_date: Date (YYYY-MM-DD) to fetch data from
     :param end_date: Date (YYYY-MM-DD) to fetch data up to
     :param split_by: Dimension to split by (if any); country codes are returned as ISO 3166-1 alpha-3
@@ -40,11 +40,14 @@ def stats(credentials, website, start_date, end_date, split_by=None, use_https=T
     #   webmasters_v3.searchanalytics.html for more information
     webmasters_service = build('webmasters', 'v3', http=credentials)
 
+    if type(website) == str:
+        website = [website]
+
     # Create the URL to be used with the request:
     if use_https:
-        site_url = "https://" + website + '/'
+        site_urls = ["https://" + site + '/' for site in website]
     else:
-        site_url = "http://" + website + '/'
+        site_urls = ["http://" + site + '/' for site in website]
 
     # Construct the API request:
     request = {
@@ -71,13 +74,16 @@ def stats(credentials, website, start_date, end_date, split_by=None, use_https=T
     else:
         request['dimensions'] = ['date']
 
-    response = webmasters_service.searchanalytics().query(siteUrl=site_url, body=request).execute()
+    responses = []
+    for site_url in site_urls:
+        response = webmasters_service.searchanalytics().query(siteUrl=site_url, body=request).execute()
+        if not response.__contains__('rows'):
+            utils.print_err('No data returned by the API')
+        for row in response['rows']:
+            row.update({"site": site_url})
+        responses += response['rows']
 
-    if not response.__contains__('rows'):
-        utils.critical('No data returned by the API')
-
-    # Get a Pandas DataFrame into a writeable format:
-    df = pd.DataFrame.from_dict(response['rows'])
+    df = pd.DataFrame.from_dict(responses)
     df['date'] = df['keys'].apply(lambda x: x[0])
     df['clicks'] = df['clicks'].astype(np.int64)
     df['impressions'] = df['impressions'].astype(np.int64)
@@ -85,19 +91,19 @@ def stats(credentials, website, start_date, end_date, split_by=None, use_https=T
     # Tidy-up:
     if split_by == 'country':
         df['country'] = df['keys'].apply(lambda x: x[1].upper())
-        df = df[['date', 'country', 'clicks', 'impressions', 'ctr', 'position']]
-        df = df.sort_values(by=['date', 'country'], ascending=[True, True])
+        df = df[['site', 'date', 'country', 'clicks', 'impressions', 'ctr', 'position']]
+        df = df.sort_values(by=['site', 'date', 'country'], ascending=[True, True])
     elif split_by == 'device':
         df['device'] = df['keys'].apply(lambda x: x[1].capitalize())
-        df = df[['date', 'device', 'clicks', 'impressions', 'ctr', 'position']]
-        df = df.sort_values(by=['date', 'device'], ascending=[True, True])
+        df = df[['site', 'date', 'device', 'clicks', 'impressions', 'ctr', 'position']]
+        df = df.sort_values(by=['site', 'date', 'device'], ascending=[True, True])
     elif split_by == 'country-device':
         df['country'] = df['keys'].apply(lambda x: x[1].upper())
         df['device'] = df['keys'].apply(lambda x: x[2].capitalize())
-        df = df[['date', 'country', 'device', 'clicks', 'impressions', 'ctr', 'position']]
-        df = df.sort_values(by=['date', 'country', 'device'], ascending=[True, True, True])
+        df = df[['site', 'date', 'country', 'device', 'clicks', 'impressions', 'ctr', 'position']]
+        df = df.sort_values(by=['site', 'date', 'country', 'device'], ascending=[True, True, True])
     else:
-        df = df[['date', 'clicks', 'impressions', 'ctr', 'position']]
-        df = df.sort_values(by=['date'], ascending=True)
+        df = df[['site', 'date', 'clicks', 'impressions', 'ctr', 'position']]
+        df = df.sort_values(by=['site', 'date'], ascending=True)
 
     return df
