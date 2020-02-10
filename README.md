@@ -31,6 +31,11 @@ creds = utils.load_credentials('path/to/credentials.json')
 
 ## Usage
 
+- `gsc_utils.sites` module has functions
+    - `list()` for obtaining a list of sites registered in GSC
+    - `add()` and `remove()` for registering and unregistering sites in GSC, respectively
+- `gsc_utils.performance` module has function `stats()` for impressions, clicks, ctr (clickthrough rate), and position for one or more sites registered in GSC
+
 Refer to [example notebook](docs/example.ipynb)
 
 ### Rich Card Results
@@ -47,18 +52,19 @@ Refer to [Aggregating data by site vs by page](https://support.google.com/webmas
 library(reticulate)
 
 gsc_utils <- import("gsc_utils.utils")
-fetch <- import("gsc_utils.fetch")
+sites <- import("gsc_utils.sites")
+performance <- import("gsc_utils.performance")
 
 creds <- gsc_utils$load_credentials('path/to/credentials.json')
 
-site_list <- fetch$sitelist(creds)
+site_list <- sites$list(creds)
 
 results <- purrr::map_dfr(
   site_list$siteUrl,
   function(site_url, start, end) {
     website <- urltools::domain(site_url)
     use_https <- urltools::scheme(site_url) == "https"
-    result <- fetch$stats(creds, website, start, end, use_https = use_https)
+    result <- performance$stats(creds, website, start, end, use_https = use_https)
     return(result)
   },
   start = "2020-01-01", end = "2020-01-31"
@@ -67,10 +73,10 @@ results <- purrr::map_dfr(
 readr::write_csv(results, "stats_2020-01.csv")
 ```
 
-Since `gsc_utils.fetch.stats()` can operate on a vector of websites, this is the alternative usage if all of the sites use the same protocol (all HTTPS):
+Since `gsc_utils.performance.stats()` can operate on a vector of websites, this is the alternative usage if all of the sites use the same protocol (all HTTPS):
 
 ```R
-results <- fetch$stats(creds, urltools::domain(site_list$siteUrl), start = "2020-01-01", end = "2020-01-31")
+results <- performance$stats(creds, urltools::domain(site_list$siteUrl), start = "2020-01-01", end = "2020-01-31")
 ```
 
 **Note**: If `gsc-utils` is installed in a different virtual environment than the default one, include the following in .Rprofile in working directory:
