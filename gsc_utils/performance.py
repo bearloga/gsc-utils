@@ -5,23 +5,6 @@ from googleapiclient.discovery import build
 from gsc_utils import utils
 
 
-def sitelist(credentials):
-    """
-    Fetch list of properties registered in Google Search Console
-
-    :param credentials: Pre-authorized credentials, loaded using `utils.load_credentials()`
-    :return: Pandas DataFrame with column 'siteUrl'
-    """
-
-    # Make the API request:
-    webmasters_service = build('webmasters', 'v3', http=credentials)
-    site_list = webmasters_service.sites().list().execute()
-
-    # Tidy up and output:
-    df = pd.DataFrame.from_dict(site_list['siteEntry'])
-    return df[['siteUrl']].sort_values(by=['siteUrl'], ascending=True)
-
-
 def stats(credentials, website, start_date, end_date, split_by=None, use_https=True, rich_results=False):
     """
     Fetch Google Search Console statistics for a property
@@ -33,7 +16,9 @@ def stats(credentials, website, start_date, end_date, split_by=None, use_https=T
     :param split_by: Dimension to split by (if any); country codes are returned as ISO 3166-1 alpha-3
     :param use_https: Fetch stats about the secure (HTTPS) variant (set to False for non-secure variant)
     :param rich_results: Fetch stats for results appearing as rich cards (False by default)
-    :return: Pandas DataFrame
+    :return: Pandas DataFrame of site, impressions, clicks, ctr, and position
+
+    See https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query for more info
     """
 
     # refer to developers.google.com/resources/api-libraries/documentation/webmasters/v3/python/latest/

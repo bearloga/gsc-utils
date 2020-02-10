@@ -3,4 +3,4 @@
 # by setup.py before dependencies are installed.
 
 source = "https://github.com/bearloga/gsc-utils"
-version = "0.1.0"
+version = "0.1.1"
